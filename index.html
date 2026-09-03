@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClimaExplore - Web Analytics Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-teal: #2dd4bf;
+            --accent-amber: #fbbf24;
+            --accent-red: #f87171;
+            --accent-green: #4ade80;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent-blue: #0284c7;
+            --accent-teal: #0d9488;
+            --accent-amber: #d97706;
+            --accent-red: #dc2626;
+            --accent-green: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        /* Top Header Navigation */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-theme {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-theme:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Main Workspace Tabs Layout */
+        .tab-bar {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            padding: 0 24px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* Workspace Container */
+        .workspace {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tab-content {
+            display: none;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            height: calc(100vh - 170px);
+        }
+
+        .tab-content.active {
+            display: grid;
+        }
+
+        /* Left Panel Form Controls (SPAN/ASIVA Style) */
+        .control-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-control, select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-control:focus, select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-red);
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Right Display Output Panel */
+        .output-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Data Table Styling */
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--bg-primary);
+            color: var(--accent-blue);
+            padding: 10px 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Summary Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-card-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+
+        }
+
+        .stat-card-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Canvas Chart Container */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Metrics Box */
+        .metrics-box {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-teal);
+            white-space: pre-wrap;
+        }
+
+        /* Status Bar Footer */
+        footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 8px 24px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header -->
+    <header>
+        <div class="brand-container">
+            <div class="brand-logo">CE</div>
+            <div>
+                <div class="brand-title">ClimaExplore</div>
+                <div class="brand-subtitle">Modular Climate Analytics Platform</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <span class="badge">Branch: main</span>
+            <span class="badge">Engine: JS WebAssembly / PyTorch</span>
+            <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
+        </div>
+    </header>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(0)">Data Input</button>
+        <button class="tab-btn" onclick="switchTab(1)">CNN+GRU Model</button>
+        <button class="tab-btn" onclick="switchTab(2)">Wavelet Analysis</button>
+        <button class="tab-btn" onclick="switchTab(3)">Map Plots</button>
+        <button class="tab-btn" onclick="switchTab(4)">Docs/Help</button>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+        
+        <!-- Tab 1: Data Input -->
+        <div class="tab-content active" id="tab-0">
+            <div class="control-panel">
+                <div class="panel-title">Dataset Options</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Data File:</label>
+                    <button class="btn-primary" onclick="loadSampleData()">📂 Load Sample IMD Dataset</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Variable:</label>
+                    <select id="target-var-select" onchange="updateDataStats()">
+                        <option value="Precipitation">Precipitation (mm)</option>
+                        <option value="Temperature">Temperature (°C)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Feature Variables:</label>
+                    <select id="feature-var-select" multiple size="4">
+                        <option value="Year" selected>Year</option>
+                        <option value="Month" selected>Month</option>
+                        <option value="Latitude" selected>Latitude</option>
+                        <option value="Longitude" selected>Longitude</option>
+                    </select>
+                </div>
+
+                <div class="panel-title" style="margin-top: 10px;">Summary Metrics</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-card-title">Count</span>
+                        <span class="stat-card-value" id="stat-count">36</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Mean</span>
+                        <span class="stat-card-value" id="stat-mean">182.4</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Std</span>
+                        <span class="stat-card-value" id="stat-std">142.1</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Min</span>
+                        <span class="stat-card-value" id="stat-min">3.5</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Max</span>
+                        <span class="stat-card-value" id="stat-max">410.2</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Median</span>
+                        <span class="stat-card-value" id="stat-median">185.1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-panel">
+                <div class="panel-title">Raw Data Preview</div>
+                <div class="table-container">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                                <th>Precipitation</th>
+                                <th>Temperature</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: CNN+GRU Model -->
+        <div class="tab-content" id="tab-1">
+            <div class="control-panel">
+                <div class="panel-title">Model Parameters</div>
+
+                <div class="form-group">
+                    <label class="form-label">Architecture:</label>
+                    <select id="model-arch">
+                        <option value="CNN+GRU Ensemble">CNN+GRU Ensemble</option>
+                        <option value="Spatial 2D-CNN">Spatial 2D-CNN</option>
+                        <option value="Recurrent GRU">Recurrent GRU</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Learning Rate:</label>
+                    <input type="number" id="model-lr" value="0.001" step="0.0005" min="0.0001" max="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Epochs:</label>
+                    <input type="number" id="model-epochs" value="25" min="5" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Batch Size:</label>
+                    <select id="model-batch">
+                        <option value="16">16</option>
+                        <option value="32" selected>32</option>
+                        <option value="64">64</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 6px;">
+                    <button class="btn-primary" style="flex: 1;" onclick="startTraining()">▶ Train Model</button>
+                    <button class="btn-danger" style="flex: 1;" onclick="stopTraining()">⏹ Stop</button>
+                </div>
+
+                <div class="panel-title" style="margin-top: 12px;">Training Metrics</div>
+                <div class="metrics-box" id="metrics-output">Ready to train model.
+Click 'Train Model' to execute asynchronous training loop.</div>
+            </div>
+
+            <div class="output-panel">
+                <div class="panel-title">Real-Time Loss & Metric Curves</div>
+                <div class="canvas-container">
+                    <canvas id="canvas-training"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Wavelet Analysis -->
+        <div class="tab-content" id="tab-2">
+            <div class="control-panel">
+                <div class="panel-title">Wavelet Settings</div>
+
+                <div class="form-group">
+                    <label class="form-label">Wavelet Type:</label>
+                    <select id="wavelet-type" onchange="renderScalogram()">
+                        <option value="morlet">morlet</option>
+                        <option value="db4">db4</option>
+                        <option value="paul">paul</option>
+                        <option value="ricker">ricker</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Min Scale (s0):</label>
+                    <input type="number" id="wavelet-min" value="1.0" step="0.5" onchange="renderScalogram()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Max Scale (s_max):</label>
+                    <input type="number" id="wavelet-max" value="64.0" step="5.0" onchange="renderScalogram()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Scale Step:</label>
+                    <input type="number" id="wavelet-step" value="0.125" step="0.05" onchange="renderScalogram()">
+                </div>
+
+                <button class="btn-primary" style="margin-top: 10px;" onclick="renderScalogram()">⚡ Compute Wavelet</button>
+            </div>
+
+            <div class="output-panel">
+                <div class="panel-title">2D Continuous Wavelet Transform (CWT) Scalogram</div>
+                <div class="canvas-container">
+                    <canvas id="canvas-wavelet"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Map Plots -->
+        <div class="tab-content" id="tab-3">
+            <div class="control-panel">
+                <div class="panel-title">Map Options</div>
+
+                <div class="form-group">
+                    <label class="form-label">Variable:</label>
+                    <select id="map-var" onchange="renderMap()">
+                        <option value="Precipitation">Precipitation (mm)</option>
+                        <option value="Temperature">Temperature (°C)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Color Map:</label>
+                    <select id="map-cmap" onchange="renderMap()">
+                        <option value="YlGnBu">YlGnBu</option>
+                        <option value="viridis">viridis</option>
+                        <option value="plasma">plasma</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Time Step: <span id="time-step-label" style="color: var(--accent-blue);">2020-07</span></label>
+                    <input type="range" id="time-slider" min="0" max="5" value="2" oninput="onTimeSliderChange()">
+                </div>
+
+                <button class="btn-primary" style="margin-top: 10px;" onclick="toggleMapAnimation()" id="btn-map-play">▶ Play Animation</button>
+            </div>
+
+            <div class="output-panel">
+                <div class="panel-title">IMD Geospatial Rainfall & Temperature Field Map</div>
+                <div class="canvas-container">
+                    <canvas id="canvas-map"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Docs/Help -->
+        <div class="tab-content" id="tab-4">
+            <div class="control-panel">
+                <div class="panel-title">Settings & Options</div>
+
+                <div class="form-group">
+                    <label class="form-label">Theme:</label>
+                    <select onchange="toggleTheme()">
+                        <option value="dark">Dark Mode</option>
+                        <option value="light">Native Light Mode</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Compute Device:</label>
+                    <select>
+                        <option value="auto">Auto (CUDA / WebAssembly)</option>
+                        <option value="cpu">CPU Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="output-panel" style="overflow-y: auto;">
+                <div class="panel-title">User Guide & System Reference</div>
+                <div style="line-height: 1.6; font-size: 14px; color: var(--text-primary);">
+                    <h3 style="color: var(--accent-blue); margin-bottom: 10px;">ClimaExplore User Guide</h3>
+                    <p>Welcome to <strong>ClimaExplore</strong> — an open-source scientific desktop and web platform built for climate data processing, deep learning predictions, wavelet analysis, and geospatial visualization.</p>
+
+                    <h4 style="color: var(--accent-teal); margin-top: 16px; margin-bottom: 8px;">Features Summary</h4>
+                    <ul>
+                        <li><strong>Data Input:</strong> Import CSV/NetCDF datasets, view raw tabular data, and compute summary metrics.</li>
+                        <li><strong>CNN+GRU Model:</strong> Train deep learning models with live loss/RMSE metrics curves.</li>
+                        <li><strong>Wavelet Analysis:</strong> Continuous Wavelet Transform (CWT) scalogram power spectrum plotting.</li>
+                        <li><strong>Map Plots:</strong> Interactive climate grid field rendering with time slider navigation.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Status Bar Footer -->
+    <footer>
+        <div class="status-indicators">
+            <div class="status-item">
+                <div class="dot"></div>
+                <span>Status: System Ready</span>
+            </div>
+            <div class="status-item">
+                <span>Branch: main</span>
+            </div>
+        </div>
+        <div>ClimaExplore v0.1.0 | Web & Desktop Platform</div>
+    </footer>
+
+    <script>
+        // Sample Climate Dataset
+        const sampleData = [
+            { Year: 2020, Month: "01", Latitude: 15.0, Longitude: 75.0, Precipitation: 12.5, Temperature: 24.2 },
+            { Year: 2020, Month: "01", Latitude: 15.0, Longitude: 78.0, Precipitation: 8.2, Temperature: 25.1 },
+            { Year: 2020, Month: "01", Latitude: 20.0, Longitude: 75.0, Precipitation: 5.1, Temperature: 19.8 },
+            { Year: 2020, Month: "06", Latitude: 15.0, Longitude: 75.0, Precipitation: 245.8, Temperature: 28.4 },
+            { Year: 2020, Month: "06", Latitude: 20.0, Longitude: 78.0, Precipitation: 195.0, Temperature: 31.0 },
+            { Year: 2020, Month: "07", Latitude: 15.0, Longitude: 75.0, Precipitation: 380.4, Temperature: 27.2 },
+            { Year: 2020, Month: "07", Latitude: 20.0, Longitude: 75.0, Precipitation: 355.1, Temperature: 28.8 },
+            { Year: 2021, Month: "01", Latitude: 15.0, Longitude: 75.0, Precipitation: 10.1, Temperature: 24.5 },
+            { Year: 2021, Month: "07", Latitude: 15.0, Longitude: 75.0, Precipitation: 410.2, Temperature: 26.9 },
+            { Year: 2022, Month: "07", Latitude: 15.0, Longitude: 75.0, Precipitation: 395.0, Temperature: 27.0 }
+        ];
+
+        let trainingInterval = null;
+        let mapAnimationTimer = null;
+
+        function init() {
+            loadSampleData();
+            renderScalogram();
+            renderMap();
+            renderTrainingChart([0.85, 0.65, 0.45, 0.32, 0.22, 0.15], [14.2, 10.5, 7.8, 5.2, 3.8, 2.5]);
+        }
+
+        function switchTab(index) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+
+            if (index === 1) renderTrainingChart();
+            if (index === 2) renderScalogram();
+            if (index === 3) renderMap();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        function loadSampleData() {
+            const tbody = document.querySelector('#data-table tbody');
+            tbody.innerHTML = '';
+            sampleData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.Year}</td>
+                    <td>${row.Month}</td>
+                    <td>${row.Latitude.toFixed(1)}</td>
+                    <td>${row.Longitude.toFixed(1)}</td>
+                    <td>${row.Precipitation.toFixed(1)}</td>
+                    <td>${row.Temperature.toFixed(1)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateDataStats();
+        }
+
+        function updateDataStats() {
+            const target = document.getElementById('target-var-select').value;
+            const vals = sampleData.map(d => d[target]);
+            const sum = vals.reduce((a, b) => a + b, 0);
+            const mean = sum / vals.length;
+            const sorted = [...vals].sort((a,b) => a-b);
+
+            document.getElementById('stat-count').innerText = vals.length;
+            document.getElementById('stat-mean').innerText = mean.toFixed(1);
+            document.getElementById('stat-min').innerText = Math.min(...vals).toFixed(1);
+            document.getElementById('stat-max').innerText = Math.max(...vals).toFixed(1);
+            document.getElementById('stat-median').innerText = sorted[Math.floor(vals.length/2)].toFixed(1);
+        }
+
+        // Training Chart Canvas Simulation
+        function renderTrainingChart(lossHistory = [0.85, 0.60, 0.42, 0.28, 0.18], rmseHistory = [14.2, 9.8, 6.5, 4.2, 2.8]) {
+            const canvas = document.getElementById('canvas-training');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const isLight = document.body.classList.contains('light-mode');
+            const textColor = isLight ? '#0f172a' : '#f8fafc';
+            const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+            // Draw grid
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 1;
+            for (let i = 40; i < canvas.height; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Draw Loss Curve
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            lossHistory.forEach((val, idx) => {
+                const x = (idx / (lossHistory.length - 1 || 1)) * (canvas.width - 80) + 40;
+                const y = canvas.height - (val * (canvas.height - 80) + 40);
+                if (idx === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Label
+            ctx.fillStyle = textColor;
+            ctx.font = '12px Inter';
+            ctx.fillText('Training Loss Curve (CNN+GRU)', 50, 30);
+        }
+
+        function startTraining() {
+            let epoch = 0;
+            const maxEpochs = parseInt(document.getElementById('model-epochs').value);
+            const lossHistory = [];
+            const rmseHistory = [];
+
+            if (trainingInterval) clearInterval(trainingInterval);
+
+            trainingInterval = setInterval(() => {
+                epoch++;
+                const decay = Math.exp(-0.15 * (epoch - 1));
+                const loss = Math.max(0.02, 0.85 * decay + (Math.random() - 0.5) * 0.02);
+                const rmse = Math.max(0.8, 14.2 * decay + (Math.random() - 0.5) * 0.5);
+                const mape = Math.max(1.5, 18.5 * decay);
+
+                lossHistory.push(loss);
+                rmseHistory.push(rmse);
+
+                document.getElementById('metrics-output').innerText = 
+                    `Epoch ${epoch}/${maxEpochs}\nLoss: ${loss.toFixed(4)}\nRMSE: ${rmse.toFixed(4)}\nMAPE: ${mape.toFixed(2)}%`;
+
+                renderTrainingChart(lossHistory, rmseHistory);
+
+                if (epoch >= maxEpochs) {
+                    clearInterval(trainingInterval);
+                    document.getElementById('metrics-output').innerText += `\n\nTraining Complete!`;
+                }
+            }, 120);
+        }
+
+        function stopTraining() {
+            if (trainingInterval) clearInterval(trainingInterval);
+            document.getElementById('metrics-output').innerText += `\n\nTraining Stopped.`;
+        }
+
+        // Wavelet Canvas Rendering
+        function renderScalogram() {
+            const canvas = document.getElementById('canvas-wavelet');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const wtype = document.getElementById('wavelet-type').value;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cols = 80;
+            const rows = 40;
+            const cellW = canvas.width / cols;
+            const cellH = canvas.height / rows;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    let val;
+                    if (wtype === 'morlet') val = Math.sin(c / 5) * Math.cos(r / 4);
+                    else if (wtype === 'db4') val = Math.cos(c / 3 + r / 5);
+                    else val = Math.sin(c / 8 + r / 8);
+
+                    const intensity = Math.floor(((val + 1) / 2) * 255);
+                    ctx.fillStyle = `rgb(${intensity}, ${255 - intensity}, 200)`;
+                    ctx.fillRect(c * cellW, r * cellH, cellW + 1, cellH + 1);
+                }
+            }
+        }
+
+        // Map Canvas Rendering
+        function renderMap() {
+            const canvas = document.getElementById('canvas-map');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid land contour
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid points
+            sampleData.forEach((pt, i) => {
+                const x = ((pt.Longitude - 68) / 30) * (canvas.width - 100) + 50;
+                const y = canvas.height - (((pt.Latitude - 8) / 30) * (canvas.height - 100) + 50);
+
+                ctx.beginPath();
+                ctx.arc(x, y, 18, 0, Math.PI * 2);
+                ctx.fillStyle = i % 2 === 0 ? 'rgba(56, 189, 248, 0.8)' : 'rgba(45, 212, 191, 0.8)';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '10px JetBrains Mono';
+                ctx.fillText(`${pt.Precipitation}mm`, x - 15, y + 4);
+            });
+        }
+
+        function onTimeSliderChange() {
+            const steps = ["2020-01", "2020-06", "2020-07", "2021-01", "2021-07", "2022-07"];
+            const val = document.getElementById('time-slider').value;
+            document.getElementById('time-step-label').innerText = steps[val];
+            renderMap();
+        }
+
+        function toggleMapAnimation() {
+            const btn = document.getElementById('btn-map-play');
+            if (mapAnimationTimer) {
+                clearInterval(mapAnimationTimer);
+                mapAnimationTimer = null;
+                btn.innerText = "▶ Play Animation";
+            } else {
+                btn.innerText = "⏸ Pause Animation";
+                mapAnimationTimer = setInterval(() => {
+                    const slider = document.getElementById('time-slider');
+                    slider.value = (parseInt(slider.value) + 1) % 6;
+                    onTimeSliderChange();
+                }, 600);
+            }
+        }
+
+        window.onload = init;
+        window.onresize = () => {
+            renderTrainingChart();
+            renderScalogram();
+            renderMap();
+        };
+    </script>
+</body>
+</html>
